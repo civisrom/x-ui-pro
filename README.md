@@ -24,7 +24,7 @@
 **Install X-UI-PRO**
 
 ```
-sudo su -c "bash <(wget -qO- https://github.com/mozaroc/x-ui-pro/raw/refs/heads/master/x-ui-pro.sh) -install yes -panel 1 -ONLY_CF_IP_ALLOW no"
+sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/civisrom/x-ui-pro/refs/heads/master/x-ui-pro.sh) -install yes -panel 1 -ONLY_CF_IP_ALLOW no"
 ```
 > 
 > Do not change SubDomain for renew SSL❗
@@ -34,7 +34,7 @@ sudo su -c "bash <(wget -qO- https://github.com/mozaroc/x-ui-pro/raw/refs/heads/
 
 **Uninstall X-UI-PRO**:x:
 ```
-sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/GFW4Fun/x-ui-pro/master/x-ui-pro.sh) -uninstall yes"
+sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/civisrom/x-ui-pro/refs/heads/master/x-ui-pro.sh) -uninstall yes"
 ```
 
 ➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖
