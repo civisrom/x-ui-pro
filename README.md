@@ -37,6 +37,11 @@ sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/civisrom/list-con
 sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/civisrom/x-ui-pro/refs/heads/master/x-ui-pro.sh) -uninstall yes"
 ```
 
+**backup panel and nginx configs**:x:
+```
+sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/GFW4Fun/x-ui-pro/master/backup.sh)"
+```
+
 ➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖
 ### Server Configuration :wrench:🐧⚙️
 >
