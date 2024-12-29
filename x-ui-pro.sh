@@ -42,14 +42,14 @@ make_port() {
 }
 sub_port=$(make_port)
 panel_port=$(make_port)
-sub_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
-json_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
-panel_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+sub_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 12-24 -n 1)")
+json_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 12-24 -n 1)")
+panel_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 12-24 -n 1)")
 ws_port=$(make_port)
-ws_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+ws_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 12-24 -n 1)")
 
 ##################################Random Port and Path #################################################
-#RNDSTR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+#RNDSTR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 12-24 -n 1)")
 #while true; do 
 #    PORT=$(( ((RANDOM<<15)|RANDOM) % 49152 + 10000 ))
 #    status="$(nc -z 127.0.0.1 $PORT < /dev/null &>/dev/null; echo $?)"
@@ -130,7 +130,7 @@ if [[ ${INSTALL} == *"y"* ]]; then
         fi
 
 	$Pak -y update
-	$Pak -y install curl nginx-full certbot python3-certbot-nginx sqlite3 
+	$Pak -y install curl certbot python3-certbot-nginx sqlite3 
 	systemctl daemon-reload && systemctl enable --now nginx
 fi
 systemctl stop nginx 
@@ -213,7 +213,7 @@ upstream www {
 
 server {
     proxy_protocol on;
-    set_real_ip_from unix:;
+    #set_real_ip_from unix:;
     listen          443;
     proxy_pass      \$sni_name;
     ssl_preread     on;
@@ -222,10 +222,6 @@ server {
 EOF
 
 grep -xqFR "stream { include /etc/nginx/stream-enabled/*.conf; }" /etc/nginx/* ||echo "stream { include /etc/nginx/stream-enabled/*.conf; }" >> /etc/nginx/nginx.conf
-grep -xqFR "load_module modules/ngx_stream_module.so;" /etc/nginx/* || sed -i '1s/^/load_module \/usr\/lib\/nginx\/modules\/ngx_stream_module.so; /' /etc/nginx/nginx.conf
-grep -xqFR "load_module modules/ngx_stream_geoip2_module.so;" /etc/nginx* || sed -i '2s/^/load_module \/usr\/lib\/nginx\/modules\/ngx_stream_geoip2_module.so; /' /etc/nginx/nginx.conf
-grep -xqFR "worker_rlimit_nofile 16384;" /etc/nginx/* ||echo "worker_rlimit_nofile 16384;" >> /etc/nginx/nginx.conf
-sed -i "/worker_connections/c\worker_connections 4096;" /etc/nginx/nginx.conf
 cat > "/etc/nginx/sites-available/80.conf" << EOF
 server {
     listen 80;
@@ -239,8 +235,7 @@ cat > "/etc/nginx/sites-available/${domain}" << EOF
 server {
 	server_tokens off;
 	server_name ${domain};
-	listen 7443 ssl http2 proxy_protocol;
-	listen [::]:7443 ssl http2 proxy_protocol;
+	listen 7443 ssl http2;
 	index index.html index.htm index.php index.nginx-debian.html;
 	root /var/www/html/;
 	ssl_protocols TLSv1.2 TLSv1.3;
@@ -350,8 +345,7 @@ cat > "/etc/nginx/sites-available/${reality_domain}" << EOF
 server {
 	server_tokens off;
 	server_name ${reality_domain};
-	listen 9443 ssl http2;
-	listen [::]:9443 ssl http2;
+	listen 7443 ssl http2;
 	index index.html index.htm index.php index.nginx-debian.html;
 	root /var/www/html/;
 	ssl_protocols TLSv1.2 TLSv1.3;
@@ -576,7 +570,7 @@ if [[ -f $XUIDB ]]; then
   "realitySettings": {
     "show": false,
     "xver": 0,
-    "dest": "${reality_domain}:9443",
+    "dest": "${reality_domain}:7443",
     "serverNames": [
       "$reality_domain"
     ],
