@@ -119,25 +119,19 @@ if [[ "${RealitySubDomain}.${RealityMainDomain}" != "${reality_domain}" ]] ; the
 fi
 
 ###############################Install Packages#########################################################
+ufw disable
 if [[ ${INSTALL} == *"y"* ]]; then
 
-    version=$(grep -oP '(?<=VERSION_ID=")[0-9]+' /etc/os-release)
+         version=$(grep -oP '(?<=VERSION_ID=")[0-9]+' /etc/os-release)
 
-    # Проверяем, является ли версия 20 или 22
-    if [[ "$version" == "20" || "$version" == "22" ]]; then
-        echo "Версия системы: Ubuntu $version"
-    fi
+         # Проверяем, является ли версия 20 или 22
+        if [[ "$version" == "20" || "$version" == "22" ]]; then
+              echo "Версия системы: Ubuntu $version"
+        fi
 
-    # Устанавливаем необходимые утилиты и добавляем репозиторий
-    apt update
-    apt install -y software-properties-common
-    add-apt-repository ppa:ondrej/nginx -y
-    apt update  # Обновляем репозитории после добавления нового
-
-    # Обновляем систему и устанавливаем необходимые пакеты
-    $Pak -y update && dist-upgrade
-    $Pak -y install curl nginx-full certbot python3-certbot-nginx sqlite3 htop wget landscape-common iptables ufw mc nano apt-utils git systemd auditd netplan.io openvswitch-switch-dpdk xclip manpages update-notifier-common gnupg2 sudo net-tools ca-certificates lsb-release ubuntu-keyring libnss-resolve rsyslog traceroute cron 
-    systemctl daemon-reload && systemctl enable --now nginx
+	$Pak -y update
+        $Pak -y install curl nginx-full certbot python3-certbot-nginx sqlite3 htop wget landscape-common iptables ufw mc nano apt-utils git systemd auditd netplan.io openvswitch-switch-dpdk xclip manpages update-notifier-common gnupg2 sudo net-tools ca-certificates lsb-release ubuntu-keyring libnss-resolve rsyslog traceroute cron 
+	systemctl daemon-reload && systemctl enable --now nginx
 fi
 systemctl stop nginx 
 fuser -k 80/tcp 80/udp 443/tcp 443/udp 2>/dev/null
