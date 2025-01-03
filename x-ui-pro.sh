@@ -136,7 +136,7 @@ if [[ ${INSTALL} == *"y"* ]]; then
 
     # Обновляем систему и устанавливаем необходимые пакеты
     $Pak -y update && dist-upgrade
-    $Pak -y install curl nginx-full certbot python3-certbot-nginx sqlite3 htop wget landscape-common iptables ufw mc nano apt-utils git systemd auditd netplan.io openvswitch-switch-dpdk xclip manpages update-notifier-common gnupg2 sudo net-tools ca-certificates lsb-release ubuntu-keyring libnss-resolve rsyslog traceroute cron
+    $Pak -y install curl nginx-full certbot python3-certbot-nginx sqlite3 htop wget landscape-common iptables ufw mc nano apt-utils git systemd auditd netplan.io openvswitch-switch-dpdk xclip manpages update-notifier-common gnupg2 sudo net-tools ca-certificates lsb-release ubuntu-keyring libnss-resolve rsyslog traceroute cron 
     systemctl daemon-reload && systemctl enable --now nginx
 fi
 systemctl stop nginx 
@@ -720,43 +720,11 @@ else
 	x-ui restart
 fi
 
-######################enable bbr and tune system########################################################
-apt-get install -yqq --no-install-recommends ca-certificates
-echo "net.core.default_qdisc=fq" | tee -a /etc/sysctl.conf
-echo "net.ipv4.tcp_congestion_control=bbr" | tee -a /etc/sysctl.conf
-echo "fs.file-max=2097152" | tee -a /etc/sysctl.conf
-echo "net.ipv4.tcp_timestamps = 1" | tee -a /etc/sysctl.conf
-echo "net.ipv4.tcp_sack = 1" | tee -a /etc/sysctl.conf
-echo "net.ipv4.tcp_window_scaling = 1" | tee -a /etc/sysctl.conf
-echo "net.core.rmem_max = 16777216" | tee -a /etc/sysctl.conf
-echo "net.core.wmem_max = 16777216" | tee -a /etc/sysctl.conf
-echo "net.ipv4.tcp_rmem = 4096 87380 16777216" | tee -a /etc/sysctl.conf
-echo "net.ipv4.tcp_wmem = 4096 65536 16777216" | tee -a /etc/sysctl.conf
-
-sysctl -p
-
-
-
-
-
-
-
-######################install_fake_site#################################################################
-
-sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/mozaroc/x-ui-pro/refs/heads/master/randomfakehtml.sh)"
-
-
 ######################cronjob for ssl/reload service/cloudflareips######################################
 crontab -l | grep -v "certbot\|x-ui\|cloudflareips" | crontab -
 (crontab -l 2>/dev/null; echo '@daily x-ui restart > /dev/null 2>&1 && nginx -s reload;') | crontab -
 (crontab -l 2>/dev/null; echo '@weekly bash /etc/nginx/cloudflareips.sh > /dev/null 2>&1;') | crontab -
 (crontab -l 2>/dev/null; echo '@monthly certbot renew --nginx --non-interactive --post-hook "nginx -s reload" > /dev/null 2>&1;') | crontab -
-##################################ufw###################################################################
-ufw disable
-ufw allow 22/tcp
-ufw allow 80/tcp
-ufw allow 443/tcp
-ufw --force enable  
 ##################################Show Details##########################################################
 
 if systemctl is-active --quiet x-ui; then clear
