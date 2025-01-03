@@ -130,7 +130,7 @@ if [[ ${INSTALL} == *"y"* ]]; then
         fi
 
 	$Pak -y update
-        $Pak -y install curl nginx-full certbot python3-certbot-nginx sqlite3 htop wget landscape-common iptables ufw mc nano apt-utils git systemd auditd netplan.io openvswitch-switch-dpdk xclip manpages update-notifier-common gnupg2 sudo net-tools ca-certificates lsb-release ubuntu-keyring libnss-resolve rsyslog traceroute cron 
+        $Pak -y install curl certbot python3-certbot-nginx sqlite3 htop wget landscape-common iptables ufw mc nano apt-utils git systemd auditd netplan.io openvswitch-switch-dpdk xclip manpages update-notifier-common gnupg2 sudo net-tools ca-certificates lsb-release ubuntu-keyring libnss-resolve rsyslog traceroute cron 
 	systemctl daemon-reload && systemctl enable --now nginx
 fi
 systemctl stop nginx 
