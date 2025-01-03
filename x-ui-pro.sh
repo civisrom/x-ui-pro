@@ -46,7 +46,7 @@ sub_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 20-30 -n 1)")
 json_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 20-30 -n 1)")
 panel_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 20-30 -n 1)")
 ws_port=$(make_port)
-ws_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+ws_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 20-30 -n 1)")
 
 ##################################Random Port and Path #################################################
 #RNDSTR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 20-30 -n 1)")
@@ -119,19 +119,25 @@ if [[ "${RealitySubDomain}.${RealityMainDomain}" != "${reality_domain}" ]] ; the
 fi
 
 ###############################Install Packages#########################################################
-ufw disable
 if [[ ${INSTALL} == *"y"* ]]; then
 
-         version=$(grep -oP '(?<=VERSION_ID=")[0-9]+' /etc/os-release)
+    version=$(grep -oP '(?<=VERSION_ID=")[0-9]+' /etc/os-release)
 
-         # Проверяем, является ли версия 20 или 22
-        if [[ "$version" == "20" || "$version" == "22" ]]; then
-              echo "Версия системы: Ubuntu $version"
-        fi
+    # Проверяем, является ли версия 20 или 22
+    if [[ "$version" == "20" || "$version" == "22" ]]; then
+        echo "Версия системы: Ubuntu $version"
+    fi
 
-	$Pak -y update
-	$Pak -y install curl certbot python3-certbot-nginx sqlite3 
-	systemctl daemon-reload && systemctl enable --now nginx
+    # Устанавливаем необходимые утилиты и добавляем репозиторий
+    apt update
+    apt install -y software-properties-common
+    add-apt-repository ppa:ondrej/nginx -y
+    apt update  # Обновляем репозитории после добавления нового
+
+    # Обновляем систему и устанавливаем необходимые пакеты
+    $Pak -y update && dist-upgrade
+    $Pak -y install curl nginx-full certbot python3-certbot-nginx sqlite3 htop wget landscape-common iptables ufw mc nano apt-utils git systemd auditd netplan.io openvswitch-switch-dpdk xclip manpages update-notifier-common gnupg2 sudo net-tools ca-certificates lsb-release ubuntu-keyring libnss-resolve rsyslog traceroute cron
+    systemctl daemon-reload && systemctl enable --now nginx
 fi
 systemctl stop nginx 
 fuser -k 80/tcp 80/udp 443/tcp 443/udp 2>/dev/null
@@ -213,6 +219,7 @@ upstream www {
 
 server {
     proxy_protocol on;
+    set_real_ip_from unix:;
     listen          443;
     proxy_pass      \$sni_name;
     ssl_preread     on;
@@ -221,6 +228,10 @@ server {
 EOF
 
 grep -xqFR "stream { include /etc/nginx/stream-enabled/*.conf; }" /etc/nginx/* ||echo "stream { include /etc/nginx/stream-enabled/*.conf; }" >> /etc/nginx/nginx.conf
+grep -xqFR "load_module modules/ngx_stream_module.so;" /etc/nginx/* || sed -i '1s/^/load_module \/usr\/lib\/nginx\/modules\/ngx_stream_module.so; /' /etc/nginx/nginx.conf
+grep -xqFR "load_module modules/ngx_stream_geoip2_module.so;" /etc/nginx* || sed -i '2s/^/load_module \/usr\/lib\/nginx\/modules\/ngx_stream_geoip2_module.so; /' /etc/nginx/nginx.conf
+grep -xqFR "worker_rlimit_nofile 16384;" /etc/nginx/* ||echo "worker_rlimit_nofile 16384;" >> /etc/nginx/nginx.conf
+sed -i "/worker_connections/c\worker_connections 4096;" /etc/nginx/nginx.conf
 cat > "/etc/nginx/sites-available/80.conf" << EOF
 server {
     listen 80;
@@ -732,11 +743,20 @@ sysctl -p
 
 ######################install_fake_site#################################################################
 
+sudo su -c "bash <(wget -qO- https://raw.githubusercontent.com/mozaroc/x-ui-pro/refs/heads/master/randomfakehtml.sh)"
+
+
 ######################cronjob for ssl/reload service/cloudflareips######################################
+crontab -l | grep -v "certbot\|x-ui\|cloudflareips" | crontab -
 (crontab -l 2>/dev/null; echo '@daily x-ui restart > /dev/null 2>&1 && nginx -s reload;') | crontab -
+(crontab -l 2>/dev/null; echo '@weekly bash /etc/nginx/cloudflareips.sh > /dev/null 2>&1;') | crontab -
 (crontab -l 2>/dev/null; echo '@monthly certbot renew --nginx --non-interactive --post-hook "nginx -s reload" > /dev/null 2>&1;') | crontab -
 ##################################ufw###################################################################
-
+ufw disable
+ufw allow 22/tcp
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw --force enable  
 ##################################Show Details##########################################################
 
 if systemctl is-active --quiet x-ui; then clear
