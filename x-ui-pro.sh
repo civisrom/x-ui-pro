@@ -221,6 +221,103 @@ server {
 
 EOF
 
+# Создание основного конфига nginx.conf
+cat > "/etc/nginx/nginx.conf" << EOF
+user                              www-data;
+pid                               /run/nginx.pid;
+worker_processes                  auto;
+worker_rlimit_nofile              65535;
+error_log                         /var/log/nginx/error.log warn;
+include                           /etc/nginx/modules-enabled/*.conf;
+
+events {
+    multi_accept                  on;
+    worker_connections            65535;
+}
+
+http {
+    # Basic Settings
+    sendfile                      on;
+    tcp_nopush                    on;
+    tcp_nodelay                   on;
+    server_tokens                 off;
+    log_not_found                 off;
+    types_hash_max_size           2048;
+    types_hash_bucket_size        64;
+    client_max_body_size          16M;
+    client_body_buffer_size       16k;
+
+    # Timeouts
+    client_body_timeout           10s;
+    client_header_timeout         10s;
+    keepalive_timeout            60s;
+    keepalive_requests           1000;
+    reset_timedout_connection     on;
+    send_timeout                 10s;
+
+    # Buffer Size
+    client_header_buffer_size     1k;
+    large_client_header_buffers   4 8k;
+    
+    # File Cache
+    open_file_cache              max=1000 inactive=20s;
+    open_file_cache_valid        30s;
+    open_file_cache_min_uses     2;
+    open_file_cache_errors       on;
+
+    # Proxy Buffer
+    proxy_buffer_size            4k;
+    proxy_buffers               8 16k;
+    proxy_busy_buffers_size      16k;
+
+    # MIME
+    include                       /etc/nginx/mime.types;
+    default_type                  application/octet-stream;
+
+    # SSL
+    ssl_session_timeout           1d;
+    ssl_session_cache            shared:SSL:10m;
+    ssl_session_tickets          off;
+    ssl_prefer_server_ciphers    on;
+    ssl_protocols                TLSv1.2 TLSv1.3;
+    ssl_ciphers                  TLS13-AES-128-GCM-SHA256:TLS13-AES-256-GCM-SHA384:TLS13-CHACHA20-POLY1305-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305;
+
+    # Security Headers
+    add_header X-Frame-Options           "SAMEORIGIN" always;
+    add_header X-Content-Type-Options    "nosniff" always;
+    add_header X-XSS-Protection         "1; mode=block" always;
+    add_header Referrer-Policy          "strict-origin-when-cross-origin" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header Content-Security-Policy   "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+    add_header Permissions-Policy        "interest-cohort=()" always;
+
+    # Logging
+    log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
+                     '\$status \$body_bytes_sent "\$http_referer" '
+                     '"\$http_user_agent" "\$http_x_forwarded_for"';
+    
+    access_log /var/log/nginx/access.log main buffer=512k flush=1m;
+
+    # Gzip Settings
+    gzip                         on;
+    gzip_vary                    on;
+    gzip_proxied                 any;
+    gzip_comp_level              6;
+    gzip_types                   text/plain text/css text/xml application/json application/javascript application/xml+rss application/atom+xml image/svg+xml;
+    gzip_min_length             1000;
+    gzip_disable                "msie6";
+
+    # Rate Limiting
+    limit_req_zone              \$binary_remote_addr zone=one:10m rate=1r/s;
+    limit_conn_zone             \$binary_remote_addr zone=addr:10m;
+    
+    # Include configurations
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+}
+
+EOF
+
 grep -xqFR "stream { include /etc/nginx/stream-enabled/*.conf; }" /etc/nginx/* ||echo "stream { include /etc/nginx/stream-enabled/*.conf; }" >> /etc/nginx/nginx.conf
 grep -xqFR "load_module modules/ngx_stream_module.so;" /etc/nginx/* || sed -i '1s/^/load_module \/usr\/lib\/nginx\/modules\/ngx_stream_module.so; /' /etc/nginx/nginx.conf
 grep -xqFR "load_module modules/ngx_stream_geoip2_module.so;" /etc/nginx* || sed -i '2s/^/load_module \/usr\/lib\/nginx\/modules\/ngx_stream_geoip2_module.so; /' /etc/nginx/nginx.conf
