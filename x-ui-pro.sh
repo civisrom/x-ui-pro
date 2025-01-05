@@ -336,9 +336,9 @@ cat > "/etc/nginx/sites-available/${domain}" << EOF
 server {
 	server_tokens off;
 	server_name ${domain};
-	listen 7443 ssl http2 proxy_protocol;
-	listen [::]:7443 ssl http2 proxy_protocol;
-	index index.html index.htm index.php index.nginx-debian.html;
+	listen 7443 ssl proxy_protocol;
+        http2 on;
+	index index.html;
 	root /var/www/html/;
 	ssl_protocols TLSv1.2 TLSv1.3;
 	ssl_ciphers HIGH:!aNULL:!eNULL:!MD5:!DES:!RC4:!ADH:!SSLv3:!EXP:!PSK:!DSS;
@@ -447,9 +447,9 @@ cat > "/etc/nginx/sites-available/${reality_domain}" << EOF
 server {
 	server_tokens off;
 	server_name ${reality_domain};
-	listen 9443 ssl http2;
-	listen [::]:9443 ssl http2;
-	index index.html index.htm index.php index.nginx-debian.html;
+	listen 9443 ssl proxy_protocol;
+        http2 on;
+	index index.html;
 	root /var/www/html/;
 	ssl_protocols TLSv1.2 TLSv1.3;
 	ssl_ciphers HIGH:!aNULL:!eNULL:!MD5:!DES:!RC4:!ADH:!SSLv3:!EXP:!PSK:!DSS;
