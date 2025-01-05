@@ -290,13 +290,8 @@ http {
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
     add_header Content-Security-Policy   "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
     add_header Permissions-Policy        "interest-cohort=()" always;
-
-    # Logging
-    log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
-                     '\$status \$body_bytes_sent "\$http_referer" '
-                     '"\$http_user_agent" "\$http_x_forwarded_for"';
     
-    access_log /var/log/nginx/access.log main buffer=512k flush=1m;
+    access_log /var/log/nginx/access.log;
 
     # Gzip Settings
     gzip                         on;
