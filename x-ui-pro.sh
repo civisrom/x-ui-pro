@@ -42,14 +42,14 @@ make_port() {
 }
 sub_port=$(make_port)
 panel_port=$(make_port)
-sub_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
-json_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
-panel_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+sub_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 20-40 -n 1)")
+json_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 20-40 -n 1)")
+panel_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 20-40 -n 1)")
 ws_port=$(make_port)
-ws_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+ws_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 20-40-n 1)")
 
 ##################################Random Port and Path #################################################
-#RNDSTR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 6-12 -n 1)")
+#RNDSTR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 20-40 -n 1)")
 #while true; do 
 #    PORT=$(( ((RANDOM<<15)|RANDOM) % 49152 + 10000 ))
 #    status="$(nc -z 127.0.0.1 $PORT < /dev/null &>/dev/null; echo $?)"
@@ -76,11 +76,11 @@ done
 UNINSTALL_XUI(){
 	printf 'y\n' | x-ui uninstall
 	rm -rf "/etc/x-ui/" "/usr/local/x-ui/" "/usr/bin/x-ui/"
-	$Pak -y remove nginx nginx-common nginx-core nginx-full python3-certbot-nginx
-	$Pak -y purge nginx nginx-common nginx-core nginx-full python3-certbot-nginx
+	#$Pak -y remove nginx nginx-common nginx-core nginx-full python3-certbot-nginx
+	#$Pak -y purge nginx nginx-common nginx-core nginx-full python3-certbot-nginx
 	$Pak -y autoremove
 	$Pak -y autoclean
-	rm -rf "/var/www/html/" "/etc/nginx/" "/usr/share/nginx/" 
+	#rm -rf "/var/www/html/" "/etc/nginx/" "/usr/share/nginx/" 
 	crontab -l | grep -v "certbot\|x-ui\|cloudflareips" | crontab -
 }
 if [[ ${UNINSTALL} == *"y"* ]]; then
@@ -130,7 +130,7 @@ if [[ ${INSTALL} == *"y"* ]]; then
         fi
 
 	$Pak -y update
-	$Pak -y install curl nginx-full certbot python3-certbot-nginx sqlite3 ufw
+	$Pak -y install curl certbot python3-certbot-nginx sqlite3
 	systemctl daemon-reload && systemctl enable --now nginx
 fi
 systemctl stop nginx 
@@ -704,6 +704,7 @@ else
 	PANEL=( "https://raw.githubusercontent.com/alireza0/x-ui/master/install.sh"
 			"https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh"
 			"https://raw.githubusercontent.com/FranzKafkaYu/x-ui/master/install_en.sh"
+                        "https://raw.githubusercontent.com/AghayeCoder/tx-ui/master/install.sh"
 		)
 
 	printf 'n\n' | bash <(wget -qO- "${PANEL[$PNLNUM]}")
