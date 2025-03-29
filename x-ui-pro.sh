@@ -42,14 +42,14 @@ make_port() {
 }
 sub_port=$(make_port)
 panel_port=$(make_port)
-sub_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 12-30 -n 1)")
-json_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 12-30 -n 1)")
-panel_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 12-30 -n 1)")
+sub_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 10-30 -n 1)")
+json_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 10-30 -n 1)")
+panel_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 10-30 -n 1)")
 ws_port=$(make_port)
-ws_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 12-30-n 1)")
+ws_path=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 10-30 -n 1)")
 
 ##################################Random Port and Path #################################################
-#RNDSTR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 12-30 -n 1)")
+#RNDSTR=$(tr -dc A-Za-z0-9 </dev/urandom | head -c "$(shuf -i 10-30 -n 1)")
 #while true; do 
 #    PORT=$(( ((RANDOM<<15)|RANDOM) % 49152 + 10000 ))
 #    status="$(nc -z 127.0.0.1 $PORT < /dev/null &>/dev/null; echo $?)"
