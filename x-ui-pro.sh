@@ -143,7 +143,7 @@ if [[ ${INSTALL} == *"y"* ]]; then
 
 	$Pak -y update
 
-	$Pak -y install curl wget jq bash sudo nginx-full certbot python3-certbot-nginx sqlite3 ufw
+	$Pak -y install curl wget jq bash sudo nginx-full certbot python3-certbot-nginx sqlite3
 
 	systemctl daemon-reload && systemctl enable --now nginx
 fi
@@ -879,6 +879,7 @@ else
 	PANEL=( "https://raw.githubusercontent.com/alireza0/x-ui/master/install.sh"
 			"https://raw.githubusercontent.com/MHSanaei/3x-ui/refs/tags/v2.6.0/install.sh"
 			"https://raw.githubusercontent.com/FranzKafkaYu/x-ui/master/install_en.sh"
+                        "https://raw.githubusercontent.com/AghayeCoder/tx-ui/master/install.sh"
 		)
 
 	printf 'n\n' | bash <(wget -qO- "${PANEL[$PNLNUM]}")
